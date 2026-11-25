@@ -13,7 +13,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "0.1.1"
     }
 
     compileOptions {
@@ -24,11 +24,7 @@ android {
 
     packaging {
         resources {
-            // LanguageTool ships one descriptor per language module. Concatenate them:
-            // pickFirst would silently hide either French or English from Languages.
             merges += "META-INF/org/languagetool/language-module.properties"
-
-            // Some transitive libraries ship duplicate metadata/license resources.
             pickFirsts += "META-INF/AL2.0"
             pickFirsts += "META-INF/LGPL2.1"
             pickFirsts += "META-INF/mailcap.default"
@@ -39,7 +35,6 @@ android {
     }
 }
 
-// Resolve duplicate classes pulled in by LanguageTool's legacy JAXB dependency graph.
 configurations.configureEach {
     exclude(group = "com.sun.istack", module = "istack-commons-runtime")
     exclude(group = "com.sun.xml.bind", module = "jaxb-core")
@@ -59,8 +54,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
-    // LanguageTool embarqué : les descripteurs des modules sont fusionnés au packaging.
-    // Cette dépendance Java n'est pas un port Android complet : compatibilité runtime à valider.
+    // Fournit une implémentation XML Schema explicite : le provider JAXP Android
+    // n'est pas toujours découvert correctement par les dépendances LanguageTool.
+    implementation("xerces:xercesImpl:2.12.2")
+
     implementation("org.languagetool:language-fr:6.6")
     implementation("org.languagetool:language-en:6.6")
 
