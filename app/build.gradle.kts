@@ -26,6 +26,7 @@ android {
         resources {
             // JNA and jna-platform both ship this identical license marker.
             pickFirsts += "META-INF/AL2.0"
+            pickFirsts += "META-INF/LGPL2.1"
         }
     }
 }
