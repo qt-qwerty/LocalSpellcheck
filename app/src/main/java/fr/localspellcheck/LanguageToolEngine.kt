@@ -1,6 +1,8 @@
 package fr.localspellcheck
 
 import javax.xml.XMLConstants
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.SAXParserFactory
 import javax.xml.validation.SchemaFactory
 import org.languagetool.JLanguageTool
 import org.languagetool.Languages
@@ -16,6 +18,10 @@ data class Correction(
 
 class LanguageToolEngine {
     companion object {
+        private const val XERCES_DOCUMENT_BUILDER_FACTORY =
+            "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"
+        private const val XERCES_SAX_PARSER_FACTORY =
+            "org.apache.xerces.jaxp.SAXParserFactoryImpl"
         private const val XERCES_SCHEMA_FACTORY =
             "org.apache.xerces.jaxp.validation.XMLSchemaFactory"
 
@@ -23,25 +29,51 @@ class LanguageToolEngine {
         private var xmlProviderReady = false
 
         /**
-         * Force un provider JAXP embarqué au lieu de dépendre de la découverte
-         * du provider XML du système Android. À exécuter avant toute initialisation LT.
+         * Android's built-in DocumentBuilderFactory/SAXParserFactory may throw
+         * UnsupportedOperationException from setXIncludeAware(). LanguageTool
+         * dependencies configure these factories, so select Xerces for all
+         * three JAXP factory types before LanguageTool is initialized.
          */
         @Synchronized
         private fun ensureXmlProvider() {
             if (xmlProviderReady) return
 
-            val classLoader = LanguageToolEngine::class.java.classLoader
+            System.setProperty(
+                "javax.xml.parsers.DocumentBuilderFactory",
+                XERCES_DOCUMENT_BUILDER_FACTORY
+            )
+            System.setProperty(
+                "javax.xml.parsers.SAXParserFactory",
+                XERCES_SAX_PARSER_FACTORY
+            )
             System.setProperty(
                 "javax.xml.validation.SchemaFactory:${XMLConstants.W3C_XML_SCHEMA_NS_URI}",
                 XERCES_SCHEMA_FACTORY
             )
 
-            // Échoue immédiatement avec un message explicite si le provider manque.
+            val classLoader = LanguageToolEngine::class.java.classLoader
+
+            val documentFactory = DocumentBuilderFactory.newInstance(
+                XERCES_DOCUMENT_BUILDER_FACTORY, classLoader
+            )
+            // Verify the operation that fails with Android's platform provider.
+            documentFactory.isXIncludeAware = false
+            documentFactory.isNamespaceAware = true
+            documentFactory.newDocumentBuilder()
+
+            val saxFactory = SAXParserFactory.newInstance(
+                XERCES_SAX_PARSER_FACTORY, classLoader
+            )
+            saxFactory.isXIncludeAware = false
+            saxFactory.isNamespaceAware = true
+            saxFactory.newSAXParser()
+
             SchemaFactory.newInstance(
                 XMLConstants.W3C_XML_SCHEMA_NS_URI,
                 XERCES_SCHEMA_FACTORY,
                 classLoader
             )
+
             xmlProviderReady = true
         }
     }
