@@ -1,11 +1,11 @@
 package fr.localspellcheck
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import java.util.Locale
 import javax.xml.XMLConstants
 import javax.xml.validation.SchemaFactory
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -20,7 +20,7 @@ class LanguageToolEngineInstrumentedTest {
             LanguageToolEngine::class.java.classLoader
         )
         assertNotNull(factory)
-        assertFalse(factory.isSchemaLanguageSupported("unsupported:test-schema"))
+        assertTrue(factory.isSchemaLanguageSupported(XMLConstants.W3C_XML_SCHEMA_NS_URI))
     }
 
     @Test
