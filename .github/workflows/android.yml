@@ -13,7 +13,8 @@ permissions:
 jobs:
   build-and-test:
     name: Build APK and test LanguageTool on Android
-    runs-on: ubuntu-latest
+    # Ubuntu 24.04 is a known stable runner for the Android emulator/KVM stack.
+    runs-on: ubuntu-24.04
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -48,6 +49,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_2
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          disable-animations: true
+          emulator-boot-timeout: 600
           script: gradle :app:connectedDebugAndroidTest --stacktrace
 
       - name: Upload debug APK
