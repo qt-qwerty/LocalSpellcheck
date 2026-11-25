@@ -23,6 +23,15 @@ android {
     kotlinOptions { jvmTarget = "17" }
 }
 
+// Resolve duplicate classes pulled in by LanguageTool's legacy JAXB dependency graph.
+configurations.configureEach {
+    exclude(group = "com.sun.istack", module = "istack-commons-runtime")
+    exclude(group = "com.sun.xml.bind", module = "jaxb-core")
+    exclude(group = "org.glassfish.jaxb", module = "txw2")
+    exclude(group = "javax.activation", module = "javax.activation-api")
+    exclude(group = "com.intellij", module = "annotations")
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.activity:activity-compose:1.10.0")
