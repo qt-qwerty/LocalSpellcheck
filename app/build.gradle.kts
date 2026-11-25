@@ -24,7 +24,11 @@ android {
 
     packaging {
         resources {
-            // Some transitive libraries ship identical metadata/license resources.
+            // LanguageTool ships one descriptor per language module. Concatenate them:
+            // pickFirst would silently hide either French or English from Languages.
+            merges += "META-INF/org/languagetool/language-module.properties"
+
+            // Some transitive libraries ship duplicate metadata/license resources.
             pickFirsts += "META-INF/AL2.0"
             pickFirsts += "META-INF/LGPL2.1"
             pickFirsts += "META-INF/mailcap.default"
@@ -54,9 +58,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
-    // LanguageTool embarqué : aucun endpoint distant n'est utilisé par cette application.
-    // Compatibilité Android à valider sur appareil : certaines dépendances transitives
-    // de LanguageTool peuvent nécessiter des adaptations ou exclusions.
+    // LanguageTool embarqué : les descripteurs des modules sont fusionnés au packaging.
+    // Cette dépendance Java n'est pas un port Android complet : compatibilité runtime à valider.
     implementation("org.languagetool:language-fr:6.6")
     implementation("org.languagetool:language-en:6.6")
 
