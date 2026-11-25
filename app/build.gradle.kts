@@ -14,6 +14,7 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -54,12 +55,14 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
-    // Fournit une implémentation XML Schema explicite : le provider JAXP Android
-    // n'est pas toujours découvert correctement par les dépendances LanguageTool.
+    // Fournisseur explicite XML Schema pour le runtime Android/JAXP.
     implementation("xerces:xercesImpl:2.12.2")
 
     implementation("org.languagetool:language-fr:6.6")
     implementation("org.languagetool:language-en:6.6")
+
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
