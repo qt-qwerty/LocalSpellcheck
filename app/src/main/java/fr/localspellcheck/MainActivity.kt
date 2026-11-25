@@ -1,6 +1,7 @@
 package fr.localspellcheck
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -103,7 +104,13 @@ fun LocalSpellcheckApp() {
                                     if (corrections.isEmpty()) "Aucune erreur détectée" else "${corrections.size} problème(s) détecté(s)"
                                 )
                             } catch (t: Throwable) {
-                                error = t.message ?: "Erreur pendant la correction"
+                                Log.e("LocalSpellcheck", "Échec de LanguageTool", t)
+                                val details = generateSequence(t) { it.cause }
+                                    .take(4)
+                                    .joinToString(" → ") { cause ->
+                                        "${cause.javaClass.simpleName}: ${cause.message ?: "sans détail"}"
+                                    }
+                                error = "Erreur pendant la correction : $details"
                             } finally { busy = false }
                         }
                     },
