@@ -2,6 +2,8 @@ package fr.localspellcheck
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import javax.xml.XMLConstants
+import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.parsers.SAXParserFactory
 import javax.xml.validation.SchemaFactory
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -13,20 +15,35 @@ import org.junit.runner.RunWith
 class LanguageToolEngineInstrumentedTest {
 
     @Test
-    fun xmlSchemaProviderIsAvailableOnAndroid() {
-        val factory = SchemaFactory.newInstance(
-            XMLConstants.W3C_XML_SCHEMA_NS_URI,
-            "org.apache.xerces.jaxp.validation.XMLSchemaFactory",
-            LanguageToolEngine::class.java.classLoader
+    fun allXmlFactoriesUseXercesAndSupportXIncludeConfiguration() {
+        // Initializes and installs the JAXP providers before LanguageTool starts.
+        LanguageToolEngine().check("A short test.", "en-US")
+
+        val documentFactory = DocumentBuilderFactory.newInstance()
+        assertTrue(
+            "DocumentBuilderFactory must be Xerces, got ${documentFactory.javaClass.name}",
+            documentFactory.javaClass.name == "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"
         )
-        assertNotNull(factory)
-        assertTrue(factory.isSchemaLanguageSupported(XMLConstants.W3C_XML_SCHEMA_NS_URI))
+        documentFactory.isXIncludeAware = false
+        documentFactory.newDocumentBuilder()
+
+        val saxFactory = SAXParserFactory.newInstance()
+        assertTrue(
+            "SAXParserFactory must be Xerces, got ${saxFactory.javaClass.name}",
+            saxFactory.javaClass.name == "org.apache.xerces.jaxp.SAXParserFactoryImpl"
+        )
+        saxFactory.isXIncludeAware = false
+        saxFactory.newSAXParser()
+
+        val schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+        assertNotNull(schemaFactory)
+        assertTrue(schemaFactory.isSchemaLanguageSupported(XMLConstants.W3C_XML_SCHEMA_NS_URI))
     }
 
     @Test
     fun frenchModuleChecksTextOffline() {
         val matches = LanguageToolEngine().check(
-            "Je suis content de vous rencontré.",
+            "Bonjour, je suis content de vous rencontré.",
             "fr"
         )
         assertFalse("Le module français doit détecter une erreur grammaticale.", matches.isEmpty())
