@@ -32,6 +32,7 @@ android {
             pickFirsts += "META-INF/AL2.0"
             pickFirsts += "META-INF/LGPL2.1"
             pickFirsts += "META-INF/mailcap.default"
+            pickFirsts += "META-INF/mimetypes.default"
             pickFirsts += "META-INF/LICENSE.md"
             pickFirsts += "META-INF/NOTICE.md"
         }
