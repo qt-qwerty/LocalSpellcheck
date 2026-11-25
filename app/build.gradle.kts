@@ -24,9 +24,10 @@ android {
 
     packaging {
         resources {
-            // JNA and jna-platform both ship this identical license marker.
+            // Some transitive libraries ship identical metadata/license resources.
             pickFirsts += "META-INF/AL2.0"
             pickFirsts += "META-INF/LGPL2.1"
+            pickFirsts += "META-INF/mailcap.default"
         }
     }
 }
