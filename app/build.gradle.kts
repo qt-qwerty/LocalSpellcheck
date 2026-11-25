@@ -21,6 +21,13 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
+
+    packaging {
+        resources {
+            // JNA and jna-platform both ship this identical license marker.
+            pickFirsts += "META-INF/AL2.0"
+        }
+    }
 }
 
 // Resolve duplicate classes pulled in by LanguageTool's legacy JAXB dependency graph.
